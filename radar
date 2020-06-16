@@ -1,11 +1,11 @@
 #! /bin/bash
 
 # Set working directory in /tmp. This can be changed.
-mkdir /tmp/radar
+mkdir -p /tmp/radar
 cd /tmp/radar
 
 # Set icon for notification. This can also be changed.
-icon="logo-kmi--nl.png"
+icon="./logo-kmi--nl.png"
 
 # Download images
 notify-send -i ${icon} "Buienradar" "Downloading images..."
