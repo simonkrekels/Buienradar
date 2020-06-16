@@ -1,8 +1,14 @@
 #! /bin/bash
 
-cd /home/simon/Buienradar
+# Set working directory in /tmp. This can be changed.
+mkdir /tmp/radar
+cd /tmp/radar
+
+# Set icon for notification. This can also be changed.
+icon="logo-kmi--nl.png"
 
 # Download images
+notify-send -i ${icon} "Buienradar" "Downloading images..."
 for ((i=0;i<=90;i+=5)); do
     newtime=$(echo "$(date --date="${i} minutes ago" +%H%M) - ($(date +%M)%5)" | bc )
     if (("${newtime}"<"1000")); then
@@ -13,7 +19,10 @@ for ((i=0;i<=90;i+=5)); do
     wget https://www.meteo.be/media/cache/meteostore_background_jpg/images/RadCompBNLX/NL/belRadComp${num}.jpg
 done
 
+# Convert images to GIF
+notify-send -i ${icon} "Buienradar" "Processing images..."
 convert -delay 100 -loop 0 *.jpg ${num}.gif
 rm *.jpg
-mpv --loop-file= INF ${num}.gif
+curl v2d.wttr.in
+mpv --loop-file=inf ${num}.gif
 rm ${num}.gif
