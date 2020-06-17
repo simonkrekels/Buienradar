@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 # Set working directory in /tmp. This can be changed.
 mkdir -p /tmp/radar
