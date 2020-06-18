@@ -31,10 +31,4 @@ for i in $(seq 5 5 90); do
     fi
 done
 
-# Convert images to GIF
-notify-send -i ${icon} "Buienradar" "Processing images..."
-convert -delay 65 -loop 0 *.jpg ${num}.gif
-
-# Display GIF
-mpv --loop-file=inf ${num}.gif
-rm ${num}.gif
+ls -1v | grep 00.jpg | mpv -loop-playlist -really-quiet --title="Buienradar" --image-display-duration=.5 --playlist=- 
