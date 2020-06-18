@@ -1,4 +1,7 @@
-#! /bin/bash
+#! /bin/sh
+
+# Set language. Supported are: {"NL","EN","FR","DE"}
+lang="NL"
 
 # Set working directory in /tmp. This can be changed.
 mkdir -p /tmp/radar
@@ -8,7 +11,7 @@ cd /tmp/radar
 icon="/home/simon/git/Buienradar/logo-kmi--nl.png"
 
 # Remove old images
-for file in $(ls -1v *.jpg); do
+for file in $(ls -1v | grep .jpg); do
     if [ $(date -r ${file} +%s) -lt $(date --date="90 minutes ago" +%s) ]; then
         rm ${file}
     fi
@@ -24,7 +27,7 @@ for i in $(seq 5 5 90); do
     date=$(date --date="${i} minutes ago" +%Y%m%d)
     num="${date}_${newtime}00"
     if [ ! -f "belRadComp${num}.jpg" ]; then
-        wget https://www.meteo.be/media/cache/meteostore_background_jpg/images/RadCompBNLX/NL/belRadComp${num}.jpg
+        wget https://www.meteo.be/media/cache/meteostore_background_jpg/images/RadCompBNLX/${lang}/belRadComp${num}.jpg
     fi
 done
 
