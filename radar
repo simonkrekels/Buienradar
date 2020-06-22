@@ -1,7 +1,7 @@
 #! /bin/sh
 
-# Set language. Supported are: {"NL","EN","FR","DE"}
-lang="NL"
+# Set language. Supported are: {"nl","en","fr","de"}
+lang="nl"
 
 # Set working directory in /tmp. This can be changed.
 mkdir -p /tmp/radar
@@ -19,16 +19,15 @@ done
 
 # Download new images
 notify-send -i ${icon} "Buienradar" "Downloading images..."
-for i in $(seq 5 5 90); do
-    newtime=$(echo "$(date --date="${i} minutes ago" +%H%M) - ($(date +%M)%5)" | bc )
-    if [ "${newtime}" -lt "1000" ]; then
-        newtime="0${newtime}"
-    fi
-    date=$(date --date="${i} minutes ago" +%Y%m%d)
-    num="${date}_${newtime}00"
+urls=$(wget -q -O - https://www.meteo.be/nl/weer/waarnemingen/neerslagradar/bliksem |\
+    grep item__imag |\
+    grep -o '".*"' |\
+    sed -e 's/.jpg".*/.jpg/' -e 's/"//')
+for url in ${urls}; do
+    num=$(echo $url | sed 's/.*belRadComp//' | sed 's/.jpg//')
     if [ ! -f "belRadComp${num}.jpg" ]; then
-        wget https://www.meteo.be/media/cache/meteostore_background_jpg/images/RadCompBNLX/${lang}/belRadComp${num}.jpg
+        wget $url 
     fi
 done
 
-ls -1v | grep 00.jpg | mpv -loop-playlist -really-quiet --title="Buienradar" --image-display-duration=.5 --playlist=- 
+ls -1v | grep belRadComp | mpv -loop-playlist -really-quiet --title="Buienradar" --image-display-duration=.5 --playlist=- 
