@@ -1,7 +1,46 @@
-#! /bin/sh
+#! /bin/bash
 
 # Set language. Supported are: {"nl","en","fr","de"}
-lang="nl"
+default_lang="nl"
+lang=$default_lang
+
+# Parse language option
+while getopts "l:" opt; do
+    case "$opt" in
+        l)
+            if $(echo ${OPTARG} | grep -q -w -e 'nl' -e 'fr' -e 'en' -e 'de'); then
+                lang="${OPTARG}"
+            else
+                lang=$default_lang
+            fi
+            ;;
+        *)
+            lang=$default_lang
+            ;;
+    esac
+done
+
+# Urls for different languages
+urlnl="https://www.meteo.be/nl/weer/waarnemingen/neerslagradar/bliksem"
+urlfr="https://www.meteo.be/fr/meteo/observations/precipitations-radars-radar/foudre"
+urlen="https://www.meteo.be/en/weather/observations/precipitation/lightning"
+urlde="https://www.meteo.be/de/wetter/messwerte/niederschlag/blitz"
+
+# Assign correct url for chosen language
+case "$lang" in
+    nl)
+        site=$urlnl
+        ;;
+    fr)
+        site=$urlfr
+        ;;
+    en)
+        site=$urlen
+        ;;
+    de)
+        site=$urlde
+        ;;
+esac
 
 # Set working directory in /tmp. This can be changed.
 mkdir -p /tmp/radar
@@ -10,7 +49,11 @@ cd /tmp/radar
 # Set icon for notification. This can also be changed.
 icon="/home/simon/git/Buienradar/logo-kmi--nl.png"
 
-# Remove old images
+# Remove old images or other languages
+if [ "$lang" != "$default_lang" ]; then
+    rm /tmp/radar/*.jpg
+fi
+
 for file in $(ls -1v | grep .jpg); do
     if [ $(date -r ${file} +%s) -lt $(date --date="90 minutes ago" +%s) ]; then
         rm ${file}
@@ -19,15 +62,22 @@ done
 
 # Download new images
 notify-send -i ${icon} "Buienradar" "Downloading images..."
-urls=$(wget -q -O - https://www.meteo.be/nl/weer/waarnemingen/neerslagradar/bliksem |\
-    grep item__imag |\
-    grep -o '".*"' |\
-    sed -e 's/.jpg".*/.jpg/' -e 's/"//')
+urls=$(wget -q -O - ${site}  |\
+    grep -o 'https.*belRadComp.*\.jpg')
+echo -n "#"
 for url in ${urls}; do
     num=$(echo $url | sed 's/.*belRadComp//' | sed 's/.jpg//')
     if [ ! -f "belRadComp${num}.jpg" ]; then
-        wget $url 
+        wget -q  $url
+        echo -n  "."
     fi
 done
+echo "#"
 
+# Display radar
 ls -1v | grep belRadComp | mpv -loop-playlist -really-quiet --title="Buienradar" --image-display-duration=.5 --playlist=- 
+
+# Cleanup if other language than default was used
+if [ "$lang" != "$default_lang" ]; then
+    rm /tmp/radar/*.jpg
+fi
