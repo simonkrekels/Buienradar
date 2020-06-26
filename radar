@@ -51,7 +51,7 @@ icon="/home/simon/git/Buienradar/logo-kmi--nl.png"
 
 # Remove old images or other languages
 if [ "$lang" != "$default_lang" ]; then
-    rm /tmp/radar/*.jpg
+    rm -f /tmp/radar/*.jpg
 fi
 
 for file in $(ls -1v | grep .jpg); do
@@ -62,6 +62,7 @@ done
 
 # Download new images
 notify-send -i ${icon} "Buienradar" "Downloading images..."
+echo "Downloading images..."
 urls=$(wget -q -O - ${site}  |\
     grep -o 'https.*belRadComp.*\.jpg')
 echo -n "#"
@@ -69,10 +70,11 @@ for url in ${urls}; do
     num=$(echo $url | sed 's/.*belRadComp//' | sed 's/.jpg//')
     if [ ! -f "belRadComp${num}.jpg" ]; then
         wget -q  $url
-        echo -n  "."
+        echo -n  "·"
     fi
 done
 echo "#"
+echo "Done"
 
 # Display radar
 ls -1v | grep belRadComp | mpv -loop-playlist -really-quiet --title="Buienradar" --image-display-duration=.5 --playlist=- 
