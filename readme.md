@@ -1,3 +1,5 @@
+**No longer works due to an update of the KMI website**
+
 # Buienradar
 A simple script to retrieve buienradar information from the Belgian [KMI/IRM](https://www.meteo.be/en/brussels "Website"). 
 
